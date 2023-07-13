@@ -1,0 +1,13 @@
+{
+  "name": "task_management_api",
+  "version": "1.0.0",
+  "description": "This is the Restfull API for the frontend",
+  "main": "app.js",
+  "author": "Mohammad Naim Faizy",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6"
+  }
+}

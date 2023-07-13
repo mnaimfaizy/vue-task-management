@@ -38,9 +38,16 @@ export default {
         body: JSON.stringify(task)
       })
 
-      const data = await res.json()
-
-      this.tasks = [...this.tasks, data]
+      const response = await res.json()
+      if(response.status === 200) {
+        alert("Task inserted successfully!")
+        console.log(response?.data)
+        this.fetchTasks().then((res) => {
+          this.tasks = res
+        })
+      } else {
+        alert("Server internal error")
+      }
     },
     async deleteTask(id) {
       if(confirm("Are you sure you want to delete?")) {
@@ -48,7 +55,7 @@ export default {
           method: "DELETE",
         })
 
-        res.status === 200 ? (this.tasks = this.tasks.filter((task) => task.id !== id)) : alert('Error deleting task')
+        res.status === 200 ? (this.tasks = this.tasks.filter((task) => task.ID !== id)) : alert('Error deleting task')
       }
     },
     async toggleReminder(id) {
@@ -63,21 +70,31 @@ export default {
         body: JSON.stringify(updateTask)
       })
 
-      const data = await res.json()
+      let data = await res.json()
+      if(data?.status === 200) {
+        console.log(data?.data);
+        this.tasks = this.tasks.map((task) => task.ID === id ? {...task, reminder: data?.data?.reminder} : task)
+      } else {
+        alert("Sorry! Something went wrong. Please try again");
+      }
 
-      this.tasks = this.tasks.map((task) => task.id === id ? {...task, reminder: data.reminder} : task)
     },
     async fetchTasks() {
-      const res = await fetch('api/tasks')
+      const res = await fetch('api/tasks', {
+        method: 'GET',
+        header: {'Content-Type': 'application/json'},
+      })
 
-      const data = await res.json()
+      let data = await res.json()
+      data = data?.data
 
       return data
     },
     async fetchTask(id) {
       const res = await fetch(`api/tasks/${id}`)
 
-      const data = await res.json()
+      let data = await res.json()
+      data = data?.data[0]
 
       return data
     }
