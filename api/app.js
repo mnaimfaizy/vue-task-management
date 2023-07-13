@@ -1,13 +1,34 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const app = express();
 
-const sqlite = require('sqlite3').verbose();
+const mysql = require('mysql');
+// const sqlite = require('sqlite').verbose();
 const url = require('url');
 
-const db = new sqlite.Database('./tasks.db', sqlite.OPEN_READWRITE, (err) => {
-    if (err) return console.error(err);
+// const db = new sqlite.Database('./tasks.db', sqlite.OPEN_READWRITE, (err) => {
+//     if (err) return console.error(err);
+// });
+
+var db = mysql.createConnection({
+    host: "localhost",
+    database: "khudqyeg_vue_task_management",
+    user: "khudqyeg_vue_task_management",
+    password: "Kabul@123"
+  });
+
+db.connect(function(err) {
+if (err) throw err;
+console.log("Connected!");
 });
+
+// CORS is enabled for the selected origins
+let corsOptions = {
+    origin: [ 'https://vue-task-management.mnfprofile.com', 'http://localhost:3000' ]
+};
+
+app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
 
@@ -16,7 +37,7 @@ app.post('/tasks', (req, res) => {
     try {
         const { text, day, reminder } = req.body;
         sql = "INSERT INTO tasks(text, day, reminder) VALUES(?,?,?)";
-        db.run(sql, [text, day, reminder], (err) => {
+        db.query(sql, [text, day, reminder], (err) => {
             if (err) return res.json({status: 300, success: false,  error: err});
 
             console.log('successful input ', text, day, reminder);
@@ -39,7 +60,7 @@ app.get("/tasks", (req, res) => {
     try {
         const queryObject = url.parse(req.url, true).query; // query parameters
         if(queryObject.field && queryObject.type) sql += ` WHERE ${queryObject.field} LIKE '%${queryObject.type}%'`;
-        db.all(sql, (err, rows) => {
+        db.query(sql, (err, rows) => {
             if (err) return res.json({status: 300, success: false,  error: err});
 
             if(rows.length < 1) return res.json({ status: 300, success: false, error: "No Match"});
@@ -67,7 +88,7 @@ app.get('/tasks/:id', (req, res) => {
     
     sql = `SELECT * FROM tasks WHERE ID=${id} LIMIT 1`;
     try {
-        db.all(sql, (err, rows) => {
+        db.query(sql, (err, rows) => {
             if (err) return res.json({status: 300, success: false,  error: err});
 
             if(rows.length < 1) return res.json({ status: 300, success: false, error: "No Match"});
@@ -91,7 +112,7 @@ app.delete('/tasks/:taskId', (req, res) => {
 
     sql = `DELETE FROM tasks WHERE ID=${taskId}`;
 
-    db.run(sql, (err) => {
+    db.query(sql, (err) => {
         if (err) return res.json({status: 300, success: false,  error: err});
 
         console.log(`Task with ID=${taskId} has been deleted successfully`);
@@ -109,7 +130,7 @@ app.put('/tasks/:id', (req, res) => {
     sql = "UPDATE tasks SET text=?, day=?, reminder=? WHERE ID=?";
 
     try {
-        db.run(sql, [text, day, reminder, taskId], (err) => {
+        db.query(sql, [text, day, reminder, taskId], (err) => {
             if (err) return res.json({status: 300, success: false,  error: err});
 
             console.log(`Task with ID=${taskId} has been updated successfully`);

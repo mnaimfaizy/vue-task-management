@@ -30,7 +30,7 @@ export default {
     },
     methods: {
     async addTask(task) {
-      const res = await fetch('/api/tasks', {
+      const res = await fetch(process.env.VUE_APP_BACKEND_URL+'/tasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ export default {
     },
     async deleteTask(id) {
       if(confirm("Are you sure you want to delete?")) {
-        const res = await fetch(`api/tasks/${id}`, {
+        const res = await fetch(`${process.env.VUE_APP_BACKEND_URL}/tasks/${id}`, {
           method: "DELETE",
         })
 
@@ -62,7 +62,7 @@ export default {
       const taskToToggle = await this.fetchTask(id)
       const updateTask = {...taskToToggle, reminder: !taskToToggle.reminder}
 
-      const res = await fetch(`api/tasks/${id}`, {
+      const res = await fetch(`${process.env.VUE_APP_BACKEND_URL}/tasks/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -80,7 +80,7 @@ export default {
 
     },
     async fetchTasks() {
-      const res = await fetch('api/tasks', {
+      const res = await fetch(process.env.VUE_APP_BACKEND_URL+'/tasks', {
         method: 'GET',
         header: {'Content-Type': 'application/json'},
       })
@@ -91,7 +91,7 @@ export default {
       return data
     },
     async fetchTask(id) {
-      const res = await fetch(`api/tasks/${id}`)
+      const res = await fetch(`${process.env.VUE_APP_BACKEND_URL}/tasks/${id}`)
 
       let data = await res.json()
       data = data?.data[0]

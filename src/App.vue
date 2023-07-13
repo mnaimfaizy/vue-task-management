@@ -25,6 +25,9 @@ export default {
     toggleAddTask() {
       this.showAddTask = !this.showAddTask
     },
+  },
+  mounted() {
+    console.log(process.env.BACKEND_URL)
   }
 }
 </script>
